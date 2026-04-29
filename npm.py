@@ -15,7 +15,7 @@ import numpy as np
 # print("\nHasil Dot:")
 # print(hasil_dot)
 
-#sintaks arange (START, STOP, STEP)
+# sintaks arange (START, STOP, STEP)
 # arange itu membuat angka sesuai parameter
 arange = np.arange(1,11) 
 print(arange)
@@ -49,10 +49,8 @@ matriks_baru = np.arange(1,17).reshape(4,4)
 print("\nIni matriks 4x4:")
 print(matriks_baru)
 
-slicing_tengahAtas = matriks_baru[1, 1:3]
-slicing_tengahBawah = matriks_baru[2, 1:3]
 kotak_tengah = matriks_baru[1:3, 1:3]
-print("\nHasil Slicing (utk 6 & 7 - 10 & 11): ")
+print("\nHasil Slicing (kotak tengah): ")
 # print(slicing_tengahAtas)
 # print(slicing_tengahBawah)
 print(kotak_tengah)
