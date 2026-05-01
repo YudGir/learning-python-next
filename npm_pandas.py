@@ -68,13 +68,13 @@ df = pd.DataFrame(data) # 'DataFrame' utk mengubah isi dict jadi tabel
 
 print()                 # subset -> cek duplikat HANYA utk kolom Nama
 df = df.drop_duplicates(subset =['Nama'], keep = 'first')  # AIE Way!
-# print(df)                               # keep -> ambil yg PERTAMA KALI saja, sisanya buang
+# print(df)                               # keep = first -> ambil yg PERTAMA KALI saja, sisanya buang
 
 print()
 # INGET, KALO MENGHAPUS DATA, INDEKS ARRAY PASTI BERUBAH.
 # KITA PERLU RESET LAGI PENG-INDEKS-ANNYA
 df = df.reset_index(drop = True)  # drop = True -> indeks lama dibuang
-print(df)                         # reset_index -> mengganti indeks yg terbuang
+# print(df)                         # reset_index -> mengganti indeks yg terbuang
 
 # print()
 # mabaIFKeren = df[(df['Jurusan'] == 'IF') & (df['IPK'] >= 3.5)]  # AIE Way!
@@ -154,7 +154,7 @@ print()
 # Cara "Pro" biar nggak pusing sama kurung:
 kota_pilihan = ['Bandung', 'Cirebon']
 HASIL = df[(df['IPK'] > 3.6) & (df['Alamat'].isin(kota_pilihan))]
-print(HASIL)
+# print(HASIL)
 
 # print()
 # # Soal 3: String Manipulation (The Searcher)
@@ -180,6 +180,16 @@ print(HASIL)
 df_rapi = df.sort_values(by=['Jurusan', 'IPK'], ascending=[True, False])
 # print(df_rapi)
 
-print()
+# print()
 df_siap_ai = pd.get_dummies(df_rapi, columns=['Jurusan'])
-print(df_siap_ai)
+# print(df_siap_ai)
+
+from sklearn.model_selection import train_test_split
+X = df_siap_ai.drop(['Nama', 'Alamat', 'Keterangan', 'Pulau',
+                     'Jurusan_IF', 'Jurusan_SI', 'Jurusan_TI', 'Jurusan TK'], axis = 1)
+y = df_siap_ai(['Jurusan_IF'])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print(f"Data latihan (X-train): {X_train.shape}")
+print(f"Data ujian (x-test): {X_test.shape}")
