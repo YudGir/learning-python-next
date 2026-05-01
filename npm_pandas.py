@@ -4,12 +4,12 @@ import pandas as pd
 # df = pd.read_csv('nama_file.csv')
 
 data = {
-    'Nama' : ['Budi', 'Siti', 'Ayu', 'Siti', 'Edo', 'Candra', 'Badu', 'Dhayu', 'Ombe'],
-    'IPK'  : [   3.5,    3.7,   4.0,    3.7,   3.4,      3.6,    3.9,     3.8, 3.9],
-    'Jurusan' : ['IF',  'SI',  'TI',   'SI',  'TK',     'IF',   'TI',    'TK', 'SI'],
-    'Alamat' : ['Cirebon', 'Bandung', 'Yogyakarta', 'Bandung', 'Lampung', 'Cirebon', 'Yogyakarta', 'Lampung', 'Bandung'],
-    'UTS' : [10, 20, 30, 40, 50, 60, 70, 80, 90],
-    'UAS' : [90, 80, 70, 60, 50, 40, 30, 20, 10]
+    'Nama' : ['Budi', 'Siti', 'Ayu', 'Siti', 'Edo', 'Candra', 'Badu', 'Dhayu', 'Ombe', 'Pasu'],
+    'IPK'  : [   3.5,    3.7,   4.0,    3.7,   3.4,      3.6,    3.9,     3.8,    3.9,   3.5],
+    'Jurusan' : ['IF',  'SI',  'TI',   'SI',  'TK',     'IF',   'TI',    'TK',    'SI',   'SI'],
+    'Alamat' : ['Cirebon', 'Bandung', 'Yogyakarta', 'Bandung', 'Lampung', 'Cirebon', 'Yogyakarta', 'Lampung', 'Bandung', 'Bandung'],
+    'UTS' : [10, 20, 30, 40, 50, 60, 70, 80, 90, 10],
+    'UAS' : [90, 80, 70, 60, 50, 40, 30, 20, 10, 90]
 }
 
 df = pd.DataFrame(data) # 'DataFrame' utk mengubah isi dict jadi tabel
@@ -49,7 +49,7 @@ df = pd.DataFrame(data) # 'DataFrame' utk mengubah isi dict jadi tabel
 # print(dF)                         # note: axis = 1 utk KOLOM, axis = 0 utk BARIS
 # print()
 
-# dF = df.drop_duplicates()       # hapus data duplikat (harus SAMA PERSIS ya data di sana!)
+df = df.drop_duplicates()       # hapus data duplikat (harus SAMA PERSIS ya data di sana!)
 # print(df)
 # print()
 # print(dF)
@@ -66,11 +66,11 @@ df = pd.DataFrame(data) # 'DataFrame' utk mengubah isi dict jadi tabel
 # DF = df.drop(3, axis = 0)
 # print(DF)
 
-print()                 # subset -> cek duplikat HANYA utk kolom Nama
-df = df.drop_duplicates(subset =['Nama'], keep = 'first')  # AIE Way!
+# print()                 # subset -> cek duplikat HANYA utk kolom Nama
+# df = df.drop_duplicates(subset =['Nama'], keep = 'first')  # AIE Way!
 # print(df)                               # keep = first -> ambil yg PERTAMA KALI saja, sisanya buang
 
-print()
+# print()
 # INGET, KALO MENGHAPUS DATA, INDEKS ARRAY PASTI BERUBAH.
 # KITA PERLU RESET LAGI PENG-INDEKS-ANNYA
 df = df.reset_index(drop = True)  # drop = True -> indeks lama dibuang
@@ -150,10 +150,10 @@ df['Pulau'] = df['Alamat'].apply(pulau)
 # HASIL = df[(df['IPK'] > 3.6) & ((df['Alamat'] == 'Bandung') | (df['Alamat'] == 'Cirebon'))]
 # print(HASIL)
 
-print()
+# print()
 # Cara "Pro" biar nggak pusing sama kurung:
-kota_pilihan = ['Bandung', 'Cirebon']
-HASIL = df[(df['IPK'] > 3.6) & (df['Alamat'].isin(kota_pilihan))]
+# kota_pilihan = ['Bandung', 'Cirebon']
+# HASIL = df[(df['IPK'] > 3.6) & (df['Alamat'].isin(kota_pilihan))]
 # print(HASIL)
 
 # print()
@@ -177,19 +177,40 @@ HASIL = df[(df['IPK'] > 3.6) & (df['Alamat'].isin(kota_pilihan))]
 # print(deteksiNama)
 
 # print()
-df_rapi = df.sort_values(by=['Jurusan', 'IPK'], ascending=[True, False])
+# df_rapi = df.sort_values(by=['Jurusan', 'IPK'], ascending=[True, False])
 # print(df_rapi)
 
 # print()
-df_siap_ai = pd.get_dummies(df_rapi, columns=['Jurusan'])
+df_siap_ai = pd.get_dummies(df, columns=['Jurusan'])
 # print(df_siap_ai)
 
 from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
 X = df_siap_ai.drop(['Nama', 'Alamat', 'Keterangan', 'Pulau',
-                     'Jurusan_IF', 'Jurusan_SI', 'Jurusan_TI', 'Jurusan TK'], axis = 1)
-y = df_siap_ai(['Jurusan_IF'])
+                     'Jurusan_IF', 'Jurusan_SI', 'Jurusan_TI', 'Jurusan_TK'], axis = 1)
+y = df_siap_ai['Jurusan_IF']
+                                             # CATATAN: Data tabel gak boleh di-sort, biar AI-nya gak cuma hafal mati!
+print(X)
+print()
+print(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)  
+                                            # X_train -> data yg dipake buat data latihan                           (ibarat: soal tugas/latihan)
+                                            # y_train -> jawaban data untuk data latihan di X_train                 (ibarat: jawaban dari soal tugas/latihan)
+                                            # X_test -> banyak data yg dipake buat data test                        (ibarat: soal ujian)
+                                            # y_test -> jawaban data yg seharusnya untuk data test dari X_test      (ibarat: jawaban soal ujian)
 
-print(f"Data latihan (X-train): {X_train.shape}")
-print(f"Data ujian (x-test): {X_test.shape}")
+print(f"\nData latihan (X-train): {X_train.shape}")      # .shape -> utk melihat ukuran matriks    (sintaksnya: (baris, kolom))
+print(f"Data ujian (x-test): {X_test.shape}")            # .reshape -> utk mengubah ukuran matriks   (sintaksnya sama kayak .shape)
+
+model = KNeighborsClassifier(n_neighbors=3)             # inisialisasi model buatan menggunakan model AI KNN
+
+model.fit(X_train, y_train)                             # .fit -> momen AI belajar dari data latihan kita (tugas harian)
+
+y_pred = model.predict(X_test)                          # .predict -> momen AI 'predict' dari data tes kita (soal ujian)
+
+print(f"\nHasil tebakan AI kamu yud: {y_pred}")
+print(f"\nJawaban aslinya (harusnya) yud: {y_test.values}")
+print(f"\nAkurasi model AI pertama kamu ini yud: {accuracy_score(y_test, y_pred) * 100}%")
