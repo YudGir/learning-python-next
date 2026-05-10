@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sklearn.neighbors import KNeighborsClassifier
 
 # --- STEP 1: KONEKSI KE GUDANG (POSTGRESQL) ---
-# Format: postgresql://user:password@host:port/database
+# Format: postgresql://user:password@host:port/nama_database
 # Ganti 'password_kamu' sesuai password yang kamu buat di Postgre tadi!
 engine = create_engine('postgresql://postgres:admin123@localhost:5432/YUDHA_AI_MODEL')
 
