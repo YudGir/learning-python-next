@@ -163,6 +163,7 @@ if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", width='stretch'):
                 Menuju, destinasi: {destination} dan sub destinasi {sub_destination} (jika ada tujuan Patt {des_pattRoom}).
 
                 Berikan output dengan format bernomor runtutan terstruktur dengan rutenya yang tepat, presisi, singkat, to the point, dan efektif.
+                Jangan ikutkan diksi "sayap", tapi berikan konteks spesifik yang tepat dan awam sangat pun tahu itu!
                 """
                 
                 try:
