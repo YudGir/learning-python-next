@@ -9,7 +9,7 @@ geminiAPI = os.getenv("GEMINI_API_KEY")
 
 st.set_page_config(page_title="Web Application of DMIF", page_icon="🚀", layout="wide")
 st.title("Web Application of DMIF")
-st.image("assets/dmif.svg", caption="@2026 All Rights Reserved", use_container_width=True, width='strecth')
+st.image("assets/DMIF (Departmental Map Informatics).png", caption="@2026 All Rights Reserved", use_container_width=True, width='stretch')
 
 st.write("Yuk, coba lihat Gemini menentukan rute terbaik untuk kamu di Gedung Jurusan Informatika!")
 
