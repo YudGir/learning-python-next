@@ -162,7 +162,7 @@ if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", width='stretch'):
                 Dari, posisi {position} dan sub posisi {sub_position} (jika berada di Patt: {pos_pattRoom}).
                 Menuju, destinasi: {destination} dan sub destinasi {sub_destination} (jika ada tujuan Patt {des_pattRoom}).
 
-                Berikan output dengan format Markdown terstruktur dengan tahap demi tahap yang tepat, presisi, dan efektif.
+                Berikan output dengan format bernomor runtutan terstruktur dengan rutenya yang tepat, presisi, singkat, to the point, dan efektif.
                 """
                 
                 try:
