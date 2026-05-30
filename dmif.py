@@ -8,10 +8,13 @@ load_dotenv()
 geminiAPI = os.getenv("GEMINI_API_KEY")
 
 st.set_page_config(page_title="Web Application of DMIF", page_icon="🚀", layout="wide")
-st.title("Web Application of DMIF")
-st.image("assets/DMIF (Departmental Map Informatics).png", caption="@2026 All Rights Reserved", use_container_width=True, width='stretch')
 
-st.write("Yuk, coba lihat Gemini menentukan rute terbaik untuk kamu di Gedung Jurusan Informatika!")
+st.markdown("<h1 style='text-align: center;'>🗺️ IF Map Application</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: gray;'>Web Application for Departmental Informatics Map</p>", unsafe_allow_html=True)
+
+st.image("assets/DMIF (Departmental Map Informatics).png", caption="@2026 All Rights Reserved To Yudha", use_container_width=True, width='stretch')
+
+st.write("Rasain secara langsung bagaimana Gemini menentukan rute terbaik untuk kamu! 🤖")
 
 col1, col2 = st.columns(2)
 
@@ -186,3 +189,6 @@ if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", width='stretch'):
         
         else:
             st.warning("Pilih dulu dong posisi dan destinasinya, bro! 🗿")
+
+st.caption("**Catatan:** Mohon menunggu loading beberapa saat hingga selesai")
+st.markdown("> _Informasi Tambahan: Aplikasi ini terintegrasi langsung dengan Gemini API._")
