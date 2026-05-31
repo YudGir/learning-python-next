@@ -3,11 +3,21 @@ import os
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
+from PIL import Image
 
 load_dotenv()
 geminiAPI = os.getenv("GEMINI_API_KEY")
 
 st.set_page_config(page_title="Web Application of DMIF", page_icon="🚀", layout="wide")
+
+with st.sidebar:
+    st.subheader("🔑 Pengaturan API Key")
+    user_key = st.text_input("Gunakan API Key kamu sendiri (opsional jika kuota developer telah habis):", type="password")
+
+active_api_key = user_key if user_key else geminiAPI
+
+if not active_api_key:
+    st.error("Kuota developer dan kamu sudah habis. Punya API lain? Silakan masukkan Gemini API kamu yang masih tersedia kuotanya di sidebar sebelah kiri.")
 
 st.markdown("<h1 style='text-align: center;'>🗺️ IF Map Application</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: gray;'>Web Application for Departmental Informatics Map</p>", unsafe_allow_html=True)
@@ -17,6 +27,21 @@ st.image("assets/DMIF (Departmental Map Informatics).png", caption="@2026 All Ri
 st.write("Rasain secara langsung bagaimana Gemini menentukan rute terbaik untuk kamu! 🤖")
 
 col1, col2 = st.columns(2)
+
+@st.cache_data(show_spinner=False)
+def get_gemini_route(p_awal, d_tujuan, sub_awal, sub_tujuan, patt_awal, patt_tujuan, _api_key, user_prompt, system_prompt):
+    client = genai.Client(api_key=_api_key)
+    img = Image.open("assets/DMIF (Departmental Map Informatics).png")
+    
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=[img, user_prompt],
+        config=types.GenerateContentConfig(
+            system_instruction=system_prompt,
+            temperature=0.7,
+        ),
+    )
+    return response.text
 
 with col1: 
     position = st.selectbox(
@@ -151,29 +176,17 @@ if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", use_container_width=Tru
                 """
                 
                 try:
-                    client = genai.Client(api_key=geminiAPI)
-                    
-                    from PIL import Image
-                    img = Image.open("assets/DMIF (Departmental Map Informatics).png")
+                    response_text = get_gemini_route(position, destination, sub_position, sub_destination, pos_pattRoom, des_pattRoom, active_api_key, user_prompt, system_prompt)
 
-                    response = client.models.generate_content(
-                        model='gemini-2.5-flash',
-                        contents=[img, user_prompt],
-                        config=types.GenerateContentConfig(
-                            system_instruction=system_prompt,
-                            temperature=0.7,
-                        ),
-                    )
-                    
                     st.success("😎 YEAYY! Mantap! " \
                     "Begini respons Gemini buat kamu:")
-                    st.markdown(response.text)
+                    st.markdown(response_text)
                     
                 except Exception as e:
                     st.error(f"Waduh ada error pas koneksi ke Gemini API: {e}")
         
         else:
-            st.warning("Pilih dulu dong posisi dan destinasinya, bro! 🗿")
+            st.warning("Pilih dulu dong posisi dan destinasinya.")
 
 st.caption("**Catatan:** Mohon menunggu loading beberapa saat hingga selesai")
 st.markdown("> _Informasi Tambahan: Aplikasi ini terintegrasi langsung dengan Gemini API._")
