@@ -11,13 +11,16 @@ geminiAPI = os.getenv("GEMINI_API_KEY")
 st.set_page_config(page_title="Web Application of DMIF", page_icon="🚀", layout="wide")
 
 with st.sidebar:
-    st.subheader("🔑 Pengaturan API Key")
-    user_key = st.text_input("Gunakan API Key kamu sendiri (opsional jika kuota developer telah habis):", type="password")
-
+    user_key = ""
+    
+    with st.expander("🔑 Pengaturan API Key", expanded=False):
+        st.write("Jika kuota harian developer habis, kamu bisa memasukkan API Key gratisan milikmu sendiri di bawah ini:")
+        user_key = st.text_input("Gemini API Key kamu:", type="password", label_visibility="collapsed")
+        
 active_api_key = user_key if user_key else geminiAPI
 
 if not active_api_key:
-    st.error("Kuota developer dan kamu sudah habis. Punya API lain? Silakan masukkan Gemini API kamu yang masih tersedia kuotanya di sidebar sebelah kiri.")
+    st.error("Kuota utama developer habis. Punya API sendiri? Silakan buka menu 🔑 **Pengaturan API Key** di sidebar sebelah kiri.")
 
 st.markdown("<h1 style='text-align: center;'>🗺️ IF Map Application</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: gray;'>Web Application for Departmental Informatics Map</p>", unsafe_allow_html=True)
