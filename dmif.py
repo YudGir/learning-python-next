@@ -12,7 +12,7 @@ st.set_page_config(page_title="Web Application of DMIF", page_icon="🚀", layou
 st.markdown("<h1 style='text-align: center;'>🗺️ IF Map Application</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: gray;'>Web Application for Departmental Informatics Map</p>", unsafe_allow_html=True)
 
-st.image("assets/DMIF (Departmental Map Informatics).png", caption="@2026 All Rights Reserved To Yudha", use_container_width=True, width='stretch')
+st.image("assets/DMIF (Departmental Map Informatics).png", caption="@2026 All Rights Reserved To Yudha", use_container_width=True)
 
 st.write("Rasain secara langsung bagaimana Gemini menentukan rute terbaik untuk kamu! 🤖")
 
@@ -23,8 +23,10 @@ with col1:
         "Tempat Kamu Sekarang (Posisi):",
         ["Laboratorium", "Ruang Pattimura", "Toilet", "Lift", "Lapangan Basket", "Tempat Parkir"], key="Position")
     
+    sub_position = ""
+    pos_pattRoom = ""
+
     if position == "Laboratorium":
-        pos_pattRoom = ""
         sub_position = st.selectbox(
             "Laboratorium:",
             ["Lab. Zettabyte", "Lab. Robotik", "Lab. Cloud Computing", "Lab. Internet of Things", "Lab. Jaringan",
@@ -55,30 +57,22 @@ with col1:
                 ["I - 1A", "I - 1B", "I - 1C", "I - 1D", "I - 3A", "I - 3B", "I - 3C", "I - 3D"], key="Position_B1")
     
     elif position == "Toilet":
-        pos_pattRoom = ""
         sub_position = st.selectbox(
             "Pilih Toilet:",
             ["Laki-laki", "Perempuan"], key="Position_C")
 
-    elif position == "Lift":
-        pos_pattRoom = ""
-        sub_position = "Lift"
-
-    elif position == "Lapangan Basket":
-        pos_pattRoom = ""
-        sub_position = "Lapangan Basket"
-        
-    elif position == "Tempat Parkir":
-        pos_pattRoom = ""
-        sub_position = "Tempat Parkir"
+    else: 
+        sub_position = position
 
 with col2:
     destination = st.selectbox(
         "Tempat Destinasi (Tujuan):",
         ["Laboratorium", "Ruang Pattimura", "Toilet", "Lift", "Lapangan Basket", "Tempat Parkir"], key="Destination")
 
+    sub_destination = ""
+    des_pattRoom = ""
+
     if destination == "Laboratorium":
-        des_pattRoom = ""
         sub_destination = st.selectbox(
             "Laboratorium:",
             ["Lab. Zettabyte", "Lab. Robotik", "Lab. Cloud Computing", "Lab. Internet of Things", "Lab. Jaringan",
@@ -109,24 +103,14 @@ with col2:
                 ["I - 1A", "I - 1B", "I - 1C", "I - 1D", "I - 3A", "I - 3B", "I - 3C", "I - 3D"], key="Destination_B1")
         
     elif destination == "Toilet":
-        des_pattRoom = ""
         sub_destination = st.selectbox(
             "Pilih Toilet:",
             ["Laki-laki", "Perempuan"], key="Destination_C")
 
-    elif destination == "Lift":
-        des_pattRoom = ""
-        sub_destination = "Lift"
+    else:
+        sub_destination = destination
 
-    elif destination == "Lapangan Basket":
-        des_pattRoom = ""
-        sub_destination = "Lapangan Basket"
-        
-    elif destination == "Tempat Parkir":
-        des_pattRoom = ""
-        sub_destination = "Tempat Parkir"
-
-if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", width='stretch'):
+if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", use_container_width=True):
     if not geminiAPI:
         st.error("Waduh, variabel `GEMINI_API_KEY` tidak ditemukan di file .env! Cek namanya lagi.")
     else:
@@ -174,7 +158,7 @@ if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", width='stretch'):
 
                     response = client.models.generate_content(
                         model='gemini-2.5-flash',
-                        contents=user_prompt,
+                        contents=[img, user_prompt],
                         config=types.GenerateContentConfig(
                             system_instruction=system_prompt,
                             temperature=0.7,
