@@ -12,7 +12,7 @@ load_dotenv()
 geminiAPI = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY")
 
 # --- KUNCI PARAMETER INDIVIDUAL DI MAP_APP AGAR SINKRON DENGAN ADMIN ---
-DB_HOST = "://supabase.com"
+DB_HOST = "aws-0-ap-southeast-1.pooler.supabase.com"
 DB_PORT = 6543
 DB_NAME = "postgres"
 DB_USER = "postgres.bhpiouzuqkoeyfainakj"
