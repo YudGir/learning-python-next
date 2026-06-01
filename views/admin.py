@@ -24,8 +24,9 @@ if not st.session_state.authenticated:
 def get_analytics_data():
     host = "aws-0-ap-southeast-1.pooler.supabase.com"
     port = 6543
+    
+    user = "postgres" 
     database = "postgres"
-    user = "postgres.bhpiouzuqkoeyfainakj"
     password = "IFPASTIBISA"
 
     try:
@@ -44,8 +45,22 @@ def get_analytics_data():
         return df_search, df_learn
 
     except Exception as e:
-        st.error(f"🚨 Gagal terhubung ke Cloud Supabase! Detail Error Asli: {e}")
-        return pd.DataFrame(), pd.DataFrame()
+        try:
+            conn = psycopg2.connect(
+                host=host,
+                port=port,
+                database=database,
+                user="postgres.bhpiouzuqkoeyfainakj",
+                password=password,
+                connect_timeout=5
+            )
+            df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
+            df_learn = pd.read_sql_query("SELECT dari, ke, koreksi FROM model_learnings;", conn)
+            conn.close()
+            return df_search, df_learn
+        except Exception as err2:
+            st.error(f"🚨 Jalur Koneksi Terbuka, Tapi Supabase Menolak Autentikasi: {err2}")
+            return pd.DataFrame(), pd.DataFrame()
 
 df_search, df_learn = get_analytics_data()
 
