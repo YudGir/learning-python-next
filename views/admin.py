@@ -1,8 +1,9 @@
 import streamlit as st
+import os
 import psycopg2
 import pandas as pd
 
-ADMIN_PASSWORD = "IFPASTIBISA"
+ADMIN_PASSWORD = st.secrets.get("ADMIN_PASSWORD") or os.getenv("ADMIN_PASSWORD")
 
 st.title("📊 Ruang Kendali Administrator Web DMIF")
 st.markdown("> _PENTING: Submenu ini khusus bagi Administrator Resmi DMIF saja._")
@@ -13,18 +14,19 @@ if "authenticated" not in st.session_state:
 if not st.session_state.authenticated:
     password_input = st.text_input("Masukkan Password Admin Keamanan Jaringan:", type="password")
     if st.button("LOGIN ADMINISTRATOR 🖐️", use_container_width=True):
-        if password_input == ADMIN_PASSWORD:
+        if ADMIN_PASSWORD and password_input == ADMIN_PASSWORD:
             st.session_state.authenticated = True
             st.rerun()
         else:
-            st.error("Password salah! Akses ditolak.")
+            st.error("Password salah atau sistem keamanan belum terkonfigurasi! Akses ditolak.")
     st.stop()
 
 def get_analytics_data():
+    db_password = st.secrets.get("DB_PASS") or os.getenv("DB_PASS")
+
     host = "aws-1-ap-northeast-2.pooler.supabase.com"
     port = 5432
     database = "postgres"
-    password = "IFPASTIBISA"
     user = "postgres.bhpiouzuqkoeyfainakj"
 
     try:
@@ -33,7 +35,7 @@ def get_analytics_data():
             port=port,
             database=database,
             user=user,
-            password=password,
+            password=db_password, 
             connect_timeout=10
         )
         df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
@@ -44,7 +46,6 @@ def get_analytics_data():
         st.error(f"🚨 Gagal terhubung ke Cloud Supabase! Detail Error Asli: {e}")
         return pd.DataFrame(), pd.DataFrame()
 
-# --- INI JALUR MESIN VISUALISASI YANG TADI KEHAPUS, WOK! ---
 df_search, df_learn = get_analytics_data()
 
 st.markdown("### 📈 Ringkasan Performa Aplikasi")
