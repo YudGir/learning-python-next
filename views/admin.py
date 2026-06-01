@@ -2,7 +2,6 @@ import streamlit as st
 import psycopg2
 import pandas as pd
 
-# 1. Kunci Password Admin Secara Hardcoded (Anti-Gagal Baca Secrets)
 ADMIN_PASSWORD = "IFPASTIBISA"
 
 st.title("📊 Ruang Kendali Administrator Web DMIF")
@@ -21,9 +20,8 @@ if not st.session_state.authenticated:
             st.error("Password salah! Akses ditolak.")
     st.stop()
 
-# 2. Fungsi Tarik Data Menggunakan Format URI Murni yang Klop dengan IPv6 Streamlit Cloud
 def get_analytics_data():
-    host = "://supabase.com"
+    host = "aws-0-ap-southeast-1.pooler.supabase.com"
     port = 6543
     database = "postgres"
     password = "IFPASTIBISA"
@@ -38,7 +36,6 @@ def get_analytics_data():
             password=password,
             connect_timeout=5
         )
-        
         df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
         df_learn = pd.read_sql_query("SELECT dari, ke, koreksi FROM model_learnings;", conn)
         conn.close()
@@ -47,13 +44,10 @@ def get_analytics_data():
         st.error(f"🚨 Gagal terhubung ke Cloud Supabase! Detail Error Asli: {e}")
         return pd.DataFrame(), pd.DataFrame()
 
-# Eksekusi penarikan data secara realtime
 df_search, df_learn = get_analytics_data()
 
-# --- TAMPILKAN METRIKS UTAMA ---
 st.markdown("### 📈 Ringkasan Performa Aplikasi")
 kpi1, kpi2, kpi3 = st.columns(3)
-
 with kpi1:
     st.metric("Total Pencarian Rute", value=len(df_search))
 with kpi2:
@@ -63,8 +57,6 @@ with kpi3:
     st.metric("Jumlah Aturan di Otak AI", value=len(df_learn))
 
 st.markdown("---")
-
-# --- VISUALISASI GRAFIK RUTE TERPOPULER ---
 st.markdown("### 🏆 Top 5 Rute Paling Sering Dicari Pengguna")
 if not df_search.empty:
     top_routes = df_search['rute_pencarian'].value_counts().head(5)
@@ -72,7 +64,6 @@ if not df_search.empty:
 else:
     st.info("Belum ada data pencarian yang masuk.")
 
-# --- TABEL DETAIL KOREKSI USER ---
 st.markdown("---")
 st.markdown("### 🧠 Daftar Memori Hasil Ajaran User (Supabase Row Data)")
 if not df_learn.empty:
