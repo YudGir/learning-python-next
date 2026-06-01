@@ -10,7 +10,25 @@ import requests
 
 load_dotenv()
 geminiAPI = os.getenv("GEMINI_API_KEY")
-DB_CONN_STR = os.getenv("DB_CONN_STR")
+
+try:
+    DB_HOST = st.secrets["DB_HOST"]
+    DB_PORT = st.secrets["DB_PORT"]
+    DB_NAME = st.secrets["DB_NAME"]
+    DB_USER = st.secrets["DB_USER"]
+    DB_PASS = st.secrets["DB_PASS"]
+except Exception:
+    from dotenv import load_dotenv
+    load_dotenv()
+    conn_str = os.getenv("DB_CONN_STR", "")
+    if conn_str:
+        cleaned = conn_str.replace("postgresql://", "")
+        user_pass, host_port_db = cleaned.split("@")
+        DB_USER, DB_PASS = user_pass.split(":")
+        host_port, DB_NAME = host_port_db.split("/")
+        DB_HOST, DB_PORT = host_port.split(":")
+    else:
+        DB_HOST = DB_PORT = DB_NAME = DB_USER = DB_PASS = ""
 
 def log_search_to_db(rute, status):
     try:
@@ -18,7 +36,14 @@ def log_search_to_db(rute, status):
         ip_anonim = response.get('query', 'Unknown IP')
         kota_asal = response.get('city', 'Unknown City')
         
-        conn = psycopg2.connect(DB_CONN_STR)
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
+
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO search_analytics (rute_pencarian, status_api, ip_user, lokasi) VALUES (%s, %s, %s, %s);", 
@@ -29,7 +54,14 @@ def log_search_to_db(rute, status):
         conn.close()
     except Exception:
         try:
-            conn = psycopg2.connect(DB_CONN_STR)
+            conn = psycopg2.connect(
+                host=DB_HOST,
+                port=DB_PORT,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASS
+            )
+
             cur = conn.cursor()
             cur.execute("INSERT INTO search_analytics (rute_pencarian, status_api, ip_user, lokasi) VALUES (%s, %s, 'Unknown', 'Unknown');", (rute, status))
             conn.commit()
@@ -40,7 +72,14 @@ def log_search_to_db(rute, status):
 
 def fetch_learnings_from_db():
     try:
-        conn = psycopg2.connect(DB_CONN_STR)
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
+
         cur = conn.cursor(cursor_factory=RealDictCursor)
         cur.execute("SELECT dari, ke, koreksi FROM model_learnings;")
         rows = cur.fetchall()
@@ -52,7 +91,14 @@ def fetch_learnings_from_db():
 
 def log_search_to_db(rute, status):
     try:
-        conn = psycopg2.connect(DB_CONN_STR)
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
+
         cur = conn.cursor()
         cur.execute("INSERT INTO search_analytics (rute_pencarian, status_api) VALUES (%s, %s);", (rute, status))
         conn.commit()
@@ -63,7 +109,14 @@ def log_search_to_db(rute, status):
 
 def save_learning_to_db(dari, ke, koreksi):
     try:
-        conn = psycopg2.connect(DB_CONN_STR)
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
+        )
+
         cur = conn.cursor()
         cur.execute("INSERT INTO model_learnings (dari, ke, koreksi) VALUES (%s, %s, %s);", (dari, ke, koreksi))
         conn.commit()
@@ -134,7 +187,7 @@ def render_feedback_panel():
 
                 blacklist_words = ["anjing", "bangsat", "goblok", "tolol", "kontol", "bego", "ngentot", "jelek", "bodoh", "bodo", "bego", 
                                    "lemot", "dih", "pecundang", "lemah", "robot", "kaku", "pendiem", "cupu", "memek", "usil"
-                                   "pusi", "pussy", "penis", "vagina", "dick", "jorok"]
+                                   "pusi", "pussy", "penis", "vagina", "dick", "jorok", "asu"]
                 
                 contains_bad_word = any(bad_word in cleaned_thought.lower() for bad_word in blacklist_words)
 
