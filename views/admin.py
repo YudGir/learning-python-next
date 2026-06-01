@@ -25,39 +25,19 @@ def get_analytics_data():
     port = 6543
     database = "postgres"
     password = "IFPASTIBISA"
-    user = "postgres.bhpiouzuqkoeyfainakj.session"
+    user = "postgres.bhpiouzuqkoeyfainakj"
 
     try:
         conn = psycopg2.connect(
-            host=host,
-            port=port,
-            database=database,
-            user=user,
-            password=password,
-            connect_timeout=5
+            host=host, port=port, database=database, user=user, password=password, connect_timeout=5
         )
         df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
         df_learn = pd.read_sql_query("SELECT dari, ke, koreksi FROM model_learnings;", conn)
         conn.close()
         return df_search, df_learn
     except Exception as e:
-        # Cadangan otomatis jika mode session di cloud mengalami penyesuaian delay
-        try:
-            conn = psycopg2.connect(
-                host=host,
-                port=port,
-                database=database,
-                user="postgres.bhpiouzuqkoeyfainakj.transaction",
-                password=password,
-                connect_timeout=5
-            )
-            df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
-            df_learn = pd.read_sql_query("SELECT dari, ke, koreksi FROM model_learnings;", conn)
-            conn.close()
-            return df_search, df_learn
-        except Exception as err2:
-            st.error(f"🚨 Jalur Koneksi Terbuka, Tapi Supabase Menolak Autentikasi: {err2}")
-            return pd.DataFrame(), pd.DataFrame()
+        st.error(f"🚨 Gagal terhubung ke Cloud Supabase! Detail Error Asli: {e}")
+        return pd.DataFrame(), pd.DataFrame()
 
 # --- INI JALUR MESIN VISUALISASI YANG TADI KEHAPUS, WOK! ---
 df_search, df_learn = get_analytics_data()
