@@ -1,17 +1,19 @@
 import streamlit as st
 import os
+import requests 
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 from PIL import Image
-import requests
 
 load_dotenv()
 geminiAPI = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY")
-
 DB_CONN_STR = os.getenv("DB_CONN_STR") or st.secrets.get("DB_CONN_STR")
+
+if not DB_CONN_STR:
+    DB_CONN_STR = "postgresql://postgres.bhpiouzuqkoeyfainakj:IFPASTIBISA@://supabase.com"
 
 def log_search_to_db(rute, status):
     try:
@@ -32,7 +34,10 @@ def log_search_to_db(rute, status):
         try:
             conn = psycopg2.connect(DB_CONN_STR)
             cur = conn.cursor()
-            cur.execute("INSERT INTO search_analytics (rute_pencarian, status_api, ip_user, lokasi) VALUES (%s, %s, 'Unknown', 'Unknown');", (rute, status))
+            cur.execute(
+                "INSERT INTO search_analytics (rute_pencarian, status_api, ip_user, lokasi) VALUES (%s, %s, 'Unknown', 'Unknown');", 
+                (rute, status)
+            )
             conn.commit()
             cur.close()
             conn.close()
@@ -51,16 +56,6 @@ def fetch_learnings_from_db():
     except Exception as e:
         return []
 
-def log_search_to_db(rute, status):
-    try:
-        conn = psycopg2.connect(DB_CONN_STR)
-        cur = conn.cursor()
-        cur.execute("INSERT INTO search_analytics (rute_pencarian, status_api) VALUES (%s, %s);", (rute, status))
-        conn.commit()
-        cur.close()
-        conn.close()
-    except Exception:
-        pass
 
 def save_learning_to_db(dari, ke, koreksi):
     try:
