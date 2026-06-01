@@ -21,12 +21,13 @@ if not st.session_state.authenticated:
     st.stop()
 
 def get_analytics_data():
-    # Kunci murni parameter individual tanpa string panjang yang rawan korup
     host = "aws-0-ap-southeast-1.pooler.supabase.com"
     port = 6543
-    database = "postgres"
+    user = "postgres.bhpiouzuqkoeyfainakj"
+    
+    # PERUBAHAN KRUSIAL: Ubah nama database dari "postgres" menjadi ID proyek unikmu!
+    database = "bhpiouzuqkoeyfainakj" 
     password = "IFPASTIBISA"
-    user = "postgres.bhpiouzuqkoeyfainakj.session"
 
     try:
         conn = psycopg2.connect(
