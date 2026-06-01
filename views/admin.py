@@ -21,7 +21,8 @@ if not st.session_state.authenticated:
     st.stop()
 
 def get_analytics_data():
-    host = "://supabase.com"
+    # Kunci murni parameter individual tanpa string panjang yang rawan korup
+    host = "aws-0-ap-southeast-1.pooler.supabase.com"
     port = 6543
     database = "postgres"
     password = "IFPASTIBISA"
@@ -29,7 +30,12 @@ def get_analytics_data():
 
     try:
         conn = psycopg2.connect(
-            host=host, port=port, database=database, user=user, password=password, connect_timeout=5
+            host=host,
+            port=port,
+            database=database,
+            user=user,
+            password=password,
+            connect_timeout=5
         )
         df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
         df_learn = pd.read_sql_query("SELECT dari, ke, koreksi FROM model_learnings;", conn)
