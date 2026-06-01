@@ -23,18 +23,27 @@ if not st.session_state.authenticated:
 
 # 2. Fungsi Tarik Data Menggunakan Format URI Murni yang Klop dengan IPv6 Streamlit Cloud
 def get_analytics_data():
-    # URL Connection String Resmi Connection Pooler Supabase v6543 (Format Paling Valid di Dunia)
-    # Kita tidak panggil dari Secrets atau .env lagi di file ini agar kebal dari Stale Cache!
-    conn_str = "postgresql://postgres.bhpiouzuqkoeyfainakj:IFPASTIBISA@://supabase.com"
+    host = "://supabase.com"
+    port = 6543
+    database = "postgres"
+    password = "IFPASTIBISA"
+    user = "postgres.bhpiouzuqkoeyfainakj"
 
     try:
-        conn = psycopg2.connect(conn_str, connect_timeout=10)
+        conn = psycopg2.connect(
+            host=host,
+            port=port,
+            database=database,
+            user=user,
+            password=password,
+            connect_timeout=5
+        )
+        
         df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
         df_learn = pd.read_sql_query("SELECT dari, ke, koreksi FROM model_learnings;", conn)
         conn.close()
         return df_search, df_learn
     except Exception as e:
-        # Jika gagal, cetak error aslinya ke layar agar terdeteksi
         st.error(f"🚨 Gagal terhubung ke Cloud Supabase! Detail Error Asli: {e}")
         return pd.DataFrame(), pd.DataFrame()
 
