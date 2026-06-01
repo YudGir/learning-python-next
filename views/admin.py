@@ -24,10 +24,9 @@ if not st.session_state.authenticated:
 def get_analytics_data():
     host = "aws-0-ap-southeast-1.pooler.supabase.com"
     port = 6543
-    
-    user = "postgres" 
     database = "postgres"
     password = "IFPASTIBISA"
+    user = "bhpiouzuqkoeyfainakj.postgres"
 
     try:
         conn = psycopg2.connect(
@@ -49,8 +48,8 @@ def get_analytics_data():
             conn = psycopg2.connect(
                 host=host,
                 port=port,
-                database=database,
-                user="postgres.bhpiouzuqkoeyfainakj",
+                database="bhpiouzuqkoeyfainakj", 
+                user="postgres",
                 password=password,
                 connect_timeout=5
             )
