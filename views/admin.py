@@ -21,13 +21,11 @@ if not st.session_state.authenticated:
     st.stop()
 
 def get_analytics_data():
-    host = "aws-0-ap-southeast-1.pooler.supabase.com"
-    port = 6543
-    user = "postgres.bhpiouzuqkoeyfainakj"
-    
-    # PERUBAHAN KRUSIAL: Ubah nama database dari "postgres" menjadi ID proyek unikmu!
-    database = "bhpiouzuqkoeyfainakj" 
+    host = "aws-1-ap-northeast-2.pooler.supabase.com"
+    port = 5432
+    database = "postgres"
     password = "IFPASTIBISA"
+    user = "postgres.bhpiouzuqkoeyfainakj"
 
     try:
         conn = psycopg2.connect(
@@ -36,7 +34,7 @@ def get_analytics_data():
             database=database,
             user=user,
             password=password,
-            connect_timeout=5
+            connect_timeout=10
         )
         df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
         df_learn = pd.read_sql_query("SELECT dari, ke, koreksi FROM model_learnings;", conn)
