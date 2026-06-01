@@ -22,25 +22,46 @@ if not st.session_state.authenticated:
     st.stop()
 
 def get_analytics_data():
-    conn_str = ""
-    
-    if "DB_CONN_STR" in st.secrets:
-        conn_str = st.secrets["DB_CONN_STR"]
-    elif os.environ.get("DB_CONN_STR"):
-        conn_str = os.environ.get("DB_CONN_STR")
+    host = "db.bhpiouzuqkoeyfainakj.supabase.co"
+    port = 6543
+    database = "postgres"
+    user = "postgres"
+    password = "IFPASTIBISA"
+
+    if "DB_HOST" in st.secrets:
+        host = st.secrets["DB_HOST"]
+        port = int(st.secrets["DB_PORT"])
+        database = st.secrets["DB_NAME"]
+        user = st.secrets["DB_USER"]
+        password = st.secrets["DB_PASS"]
+
     else:
+        import os
         from dotenv import load_dotenv
         load_dotenv()
         conn_str = os.getenv("DB_CONN_STR", "")
+        if conn_str:
+            try:
+                cleaned = conn_str.replace("postgresql://", "")
+                user_pass, host_port_db = cleaned.split("@")
+                user, password = user_pass.split(":")
+                host_port, database = host_port_db.split("/")
+                host, port = host_port.split(":")
+                port = int(port)
+            except Exception:
+                pass 
 
-    if not conn_str:
-        conn_str = "postgresql://postgres.bhpiouzuqkoeyfainakj:IFPASTIBISA@://supabase.com"
-
-    conn = psycopg2.connect(conn_str)
+    conn = psycopg2.connect(
+        host=host,
+        port=port,
+        database=database,
+        user=user,
+        password=password
+    )
+    
     df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
     df_learn = pd.read_sql_query("SELECT dari, ke, koreksi FROM model_learnings;", conn)
     conn.close()
-    
     return df_search, df_learn
 
 df_search, df_learn = get_analytics_data()
