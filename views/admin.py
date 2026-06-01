@@ -22,10 +22,10 @@ if not st.session_state.authenticated:
     st.stop()
 
 def get_analytics_data():
-    host = "db.bhpiouzuqkoeyfainakj.supabase.co"
-    port = 6543
+    host = "://supabase.com"
+    port = 6543                                       
     database = "postgres"
-    user = "postgres"
+    user = "postgres.bhpiouzuqkoeyfainakj"           
     password = "IFPASTIBISA"
 
     if "DB_HOST" in st.secrets:
