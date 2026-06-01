@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Setup konfigurasi halaman di paling atas file pengatur
-st.set_page_config(page_title="Web Application of DMIF", page_icon="🚀", layout="wide")
+st.set_page_config(page_title="Web Application for DMIF", page_icon="🚀", layout="wide")
 
 # Definisikan halaman-halaman aplikasi menggunakan Streamlit Navigation modern
 pages = {

@@ -6,10 +6,37 @@ from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 from PIL import Image
+import requests
 
 load_dotenv()
 geminiAPI = os.getenv("GEMINI_API_KEY")
 DB_CONN_STR = os.getenv("DB_CONN_STR")
+
+def log_search_to_db(rute, status):
+    try:
+        response = requests.get('http://ip-api.com', timeout=3).json()
+        ip_anonim = response.get('query', 'Unknown IP')
+        kota_asal = response.get('city', 'Unknown City')
+        
+        conn = psycopg2.connect(DB_CONN_STR)
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO search_analytics (rute_pencarian, status_api, ip_user, lokasi) VALUES (%s, %s, %s, %s);", 
+            (rute, status, ip_anonim, kota_asal)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception:
+        try:
+            conn = psycopg2.connect(DB_CONN_STR)
+            cur = conn.cursor()
+            cur.execute("INSERT INTO search_analytics (rute_pencarian, status_api, ip_user, lokasi) VALUES (%s, %s, 'Unknown', 'Unknown');", (rute, status))
+            conn.commit()
+            cur.close()
+            conn.close()
+        except Exception:
+            pass
 
 def fetch_learnings_from_db():
     try:
@@ -104,13 +131,25 @@ def render_feedback_panel():
             
             if cleaned_thought: 
                 success = save_learning_to_db(st.session_state.last_awal, st.session_state.last_tujuan, cleaned_thought)
+
+                blacklist_words = ["anjing", "bangsat", "goblok", "tolol", "kontol", "bego", "ngentot", "jelek", "bodoh", "bodo", "bego", 
+                                   "lemot", "dih", "pecundang", "lemah", "robot", "kaku", "pendiem", "cupu", "memek", "usil"
+                                   "pusi", "pussy", "penis", "vagina", "dick", "jorok"]
                 
-                if success:
-                    st.toast("🧠 Wah! Gemini telah merekam koreksi kamu secara permanen!", icon="✅")
-                    st.session_state.feedback_status = None
-                    st.rerun()
-                else:
-                    st.error("Yah, gagal menyimpan koreksi rute dong. Coba lagi nanti ya!")
+                contains_bad_word = any(bad_word in cleaned_thought.lower() for bad_word in blacklist_words)
+
+                if len(cleaned_thought) > 300:
+                    st.error("Waduh, teks koreksi kamu kepanjangan! Maksimal 300 karakter saja.")
+                elif contains_bad_word:
+                    st.error("🚨 Deteksi Sistem: Mohon gunakan bahasa yang sopan di lingkungan UPNVY, ya!")
+                elif cleaned_thought: 
+                    success = save_learning_to_db(st.session_state.last_awal, st.session_state.last_tujuan, cleaned_thought)
+                    if success:
+                        st.toast("🧠 Terima kasih! Dukungan kamu begitu berarti.", icon="✅")
+                        st.session_state.feedback_status = None
+                        st.rerun()
+                    else:
+                        st.error("Gagal menyimpan ingatan. Coba lagi nanti.")
             else:
                 st.warning("Tuliskan dulu perbaikan koreksi rute kamu sebelum mengirim, ya!")
 
@@ -210,7 +249,7 @@ col1, col2 = st.columns(2)
 with col1: 
     position = st.selectbox(
         "Tempat Kamu Sekarang (Posisi):",
-        ["Laboratorium", "Ruang Pattimura", "Toilet", "Lift", "Lapangan Basket", "Tempat Parkir", "Ruang Asisten Laboratorium"], key="Position")
+        ["Laboratorium", "Ruang Pattimura", "Toilet", "Lift", "Lapangan Basket", "Tempat Parkir", "Ruang Asisten Laboratorium", "Ruang Seminar Jurusan IF"], key="Position")
     
     sub_position = ""
     pos_pattRoom = ""
@@ -256,7 +295,7 @@ with col1:
 with col2:
     destination = st.selectbox(
         "Tempat Destinasi (Tujuan):",
-        ["Laboratorium", "Ruang Pattimura", "Toilet", "Lift", "Lapangan Basket", "Tempat Parkir", "Ruang Asisten Laboratorium"], key="Destination")
+        ["Laboratorium", "Ruang Pattimura", "Toilet", "Lift", "Lapangan Basket", "Tempat Parkir", "Ruang Asisten Laboratorium", "Ruang Seminar Jurusan IF"], key="Destination")
 
     sub_destination = ""
     des_pattRoom = ""
@@ -338,8 +377,8 @@ if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", use_container_width=Tru
                 - Kalo posisi sekarang berada di sebelah kiri dari tengah gedung, maka lift ada di sebelah kanan dan tangga di sebelah kiri di tengah gedung.
                 - Kalo posisi sekarang berada di sebelah kanan dari tengah gedung, maka lift ada di sebelah kiri dan tangga di sebelah kanan di tengah gedung.
 
-                Ada 4 lantai ya: Lantai Dasar, Lantai 1 (fleksibel aja ya: bisa dipanggil Pattimura 1), Lantai 2 (fleksibel aja ya: bisa dipanggil Pattimura 2), dan Lantai 3 (fleksibel aja ya: bisa dipanggil Pattimura 3).
-                Ingat, lantai dasar bukan berarti lantai 1! Lantai dasar berarti lantai pertama dari gedung ini. Lantai 1 berarti satu lantai di atas lantai dasar.
+                Ada 4 lantai ya: Lantai Dasar (Ground), Lantai 1 (fleksibel aja ya: bisa dipanggil Pattimura 1), Lantai 2 (fleksibel aja ya: bisa dipanggil Pattimura 2), dan Lantai 3 (fleksibel aja ya: bisa dipanggil Pattimura 3).
+                Ingat, lantai dasar (ground) bukan berarti lantai 1! Lantai dasar berarti lantai pertama dari gedung ini. Lantai 1 berarti satu lantai di atas lantai dasar (ground).
                 
                 PERHATIKAN WARNA NAMA RUANGAN INI:
                 - WARNA MERAH RUANGANNYA: ruangan tersebut berada di LANTAI TIGA
@@ -347,6 +386,7 @@ if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", use_container_width=Tru
                 - WARNA BIRU RUANGANNYA: ruangan tersebut berada di LANTAI SATU
                 - PERHATIKAN DAN DETEKSI WARNA DENGAN SUPER AKURAT + NO MISDETECTED + ABSOLUTE CINEMA + DETAIL PRESISI DENGAN GAMBARNYA! JANGAN SALAH ANALISIS WARNA NAMA RUANGAN!
 
+                Di lantai dasar (Ground), ada Distrik Gedung IF. 
                 CATATAN TAMBAHAN: 
                 Khusus Ruang 'Toilet':
                 - Kalo Toilet Laki-Laki, ada di sebelah kanan tengah gedung. 
@@ -384,6 +424,78 @@ if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", use_container_width=Tru
                 - kalo user naik lift, posisi DESTINASI nya adalah SERUPA DENGAN POSISI DAN ARAH DI GAMBAR!
 
                 APPLY KONSEP LOGIKA POSISI SUPER AKURAT INI BUAT SELURUH KEMUNGKINAN YA. PIKIRKAN BAIK2 DAN SE-AKURAT MUNGKIN!
+
+                TIDAK ADA PATT. III - 2D YA!
+                Jangan pernah generate warna di map kepada user! Misal: "ditandai warna biru/merah/hijau" INI JANGAN PERNAH!
+                Koridor TIDAK SAMA DENGAN Area Tengah Gedung. Jangan pernah gunakan kata 'Koridor'.
+                Jangan keluarkan kata "peta", "gambar", "sesuai", cukup kamu saja yang analisis di dalamnya!
+
+                GINI PEMBAGIAN 4 SUB-RUANGAN (berupa LIST):
+                Sub-Ruang A : 
+                    - [Lab. Zettabyte, Patt. III - 2C, Patt. III - 2B, Patt. III - 2A] -> ini ada di Lantai 3 (sub ruang A), 
+                    - [Patt. II - 2D, Patt. II - 2C, Patt. II - 2B, Patt. II - 2A] -> ini ada di Lantai 2 (sub ruang A), 
+                    - [Ruang Seminar Jurusan IF, Lab. Robotik, Lab. Cloud Computing] -> ini ada di Lantai 1 (sub ruang A).
+
+                Sub-Ruang B : 
+                    - [Lab. Internet of Things, Lab. Jaringan, Lab. Komputasi, Ruang Asisten Laboratorium (di lantai 1)] -> ini ada di Lantai 1 (sub ruang B),
+                    - [Lab. Geoinformatika, Lab. Teknologi Mobile, Lab. Basis Data, Ruang Asisten Laboratorium (di lantai 2)] -> ini ada di Lantai 2 (sub ruang B),
+                    - [Lab. Pengembangan dan Pengintegrasian Sistem Informasi, Lab. Rancang Bangun Perangkat Lunak, Lab. Pemrograman] -> ini ada di Lantai 3 (sub ruang B).
+                
+                Sub-Ruang C : 
+                    - [Patt. III - 1A, Patt. III - 1B, Patt. III - 1C, Patt. III - 1D] -> ini ada di Lantai 3 (sub ruang C), 
+                    - [Patt. II - 1A, Patt. II - 1B, Patt. II - 1C, Patt. II - 1D] -> ini ada di Lantai 2 (sub ruang C), 
+                    - [Patt. I - 1A, Patt. I - 1B, Patt. I - 1C, Patt. I - 1D] -> ini ada di Lantai 1 (sub ruang C).
+
+                Sub-Ruang D : 
+                    - [Patt. I - 3A, Patt. I - 3B, Patt. I - 3C, Patt. I - 3D] -> ini ada di Lantai 1 (sub ruang D), 
+                    - [Patt. II - 3A, Patt. II - 3B, Patt. II - 3C, Patt. II - 3D] -> ini ada di Lantai 2 (sub ruang D),
+                    - [Patt. III - 3A, Patt. III - 3B, Patt. III - 3C, Patt. III - 3D] -> ini ada di Lantai 3 (sub ruang D).
+
+                (PERHATIKAN INI TEPAT + AKURAT + JELAS SEKALI DALAM MENGANALISIS POSISI USER SEKARANG!)
+                Jika ada user yang berada di:
+                - salah satu di Sub-Ruang A hendak pergi ke:
+                  - lift: ada di kanan area gedung tengah di lantai itu!
+                  - tangga: ada di kiri area gedung tengah di lantai itu!
+
+                - salah satu di Sub-Ruang B hendak pergi ke:
+                  - lift: ada di kanan area gedung tengah di lantai itu!
+                  - tangga: ada di kiri area gedung tengah di lantai itu!
+
+                - salah satu di Sub-Ruang C hendak pergi ke:
+                  - lift: ada di kiri area gedung tengah di lantai itu!
+                  - tangga: ada di kanan area gedung tengah di lantai itu!
+
+                - salah satu di Sub-Ruang D hendak pergi ke:
+                  - lift: ada di kiri area gedung tengah di lantai itu!
+                  - tangga: ada di kanan area gedung tengah di lantai itu!
+
+                Kalo ada yang mau pergi dari salah satu Sub Ruang A (cocokkan dari list sub ruang A di atas dengan posisi user sekarang!):
+                - ingin menuju Toilet Perempuan: 
+                  Arahnya adalah di sebelah kiri setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu!
+                - ingin menuju Toilet Laki-laki:
+                  Arahnya adalah di sebelah kiri setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu dan berseberangan dengan toilet Perempuan!
+                
+                Kalo ada yang mau pergi dari salah satu Sub Ruang B (cocokkan dari list sub ruang B di atas dengan posisi user sekarang!):
+                - ingin menuju Toilet Perempuan: 
+                  Arahnya adalah di sebelah kiri setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu!
+                - ingin menuju Toilet Laki-laki:
+                  Arahnya adalah di sebelah kiri setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu dan berseberangan dengan toilet Perempuan!
+                
+                Kalo ada yang mau pergi dari salah satu Sub Ruang C (cocokkan dari list sub ruang C di atas dengan posisi user sekarang!):
+                - ingin menuju Toilet Laki-Laki: 
+                  Arahnya adalah di sebelah kanan setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu!
+                - ingin menuju Toilet Perempuan:
+                  Arahnya adalah di sebelah kanan setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu dan berseberangan dengan toilet Perempuan!
+
+                Kalo ada yang mau pergi dari salah satu Sub Ruang D (cocokkan dari list sub ruang D di atas dengan posisi user sekarang!):
+                - ingin menuju Toilet Laki-Laki: 
+                  Arahnya adalah di sebelah kanan setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu!
+                - ingin menuju Toilet Perempuan:
+                  Arahnya adalah di sebelah kanan setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu dan berseberangan dengan toilet Perempuan!
+
+                Jangan ikutkan diksi "sayap", tapi berikan respon yang tepat dan awam sangat pun tahu itu!
+                Jangan pernah sebut Sub-Ruang ini menuju output!
+                Jangan pernah ikutkan arah dari posisi gambar lagi (kecuali untuk Tempat Parkir dan Lapangan Basket)! Ikuti saja arah di atas yang telah diberitahu kepadamu!
                 """
                 
                 user_prompt = f"""
@@ -391,8 +503,12 @@ if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", use_container_width=Tru
                 Dari, posisi {position} dan sub posisi {sub_position} (jika berada di Patt: {pos_pattRoom}).
                 Menuju, destinasi: {destination} dan sub destinasi {sub_destination} (jika ada tujuan Patt {des_pattRoom}).
 
-                Berikan output dengan format bernomor runtutan terstruktur dengan rutenya yang tepat, presisi, singkat, to the point, dan efektif.
-                Jangan ikutkan diksi "sayap", tapi berikan respon yang tepat dan awam sangat pun tahu itu!
+                Berikan output dengan format bernomor runtutan terstruktur dengan rutenya yang tepat, presisi, singkat, to the point, dan efektif seperti ini:
+                "Rute terbaik dari {position} menuju {destination} adalah:
+                1. Silakan Anda keluar dari ruangan {position} dahulu.
+                2. Kemudian jalan lurus menuju tengah gedung di lantai (lantai posisi user) (kalo ada di dalam gedung ini apply ya!)
+                3. Lanjut....
+                4. {destination} ada di ( .... )."
                 """
                 
                 try:
