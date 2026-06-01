@@ -22,20 +22,22 @@ if not st.session_state.authenticated:
     st.stop()
 
 def get_analytics_data():
+    # 1. Parameter default pooling IPv6 Supabase UPNVY kamu
     host = "://supabase.com"
-    port = 6543                                       
+    port = 6543
     database = "postgres"
-    user = "postgres.bhpiouzuqkoeyfainakj"           
+    user = "postgres.bhpiouzuqkoeyfainakj"
     password = "IFPASTIBISA"
 
+    # 2. Ambil parameter jika ada di Streamlit Secrets Cloud
     if "DB_HOST" in st.secrets:
         host = st.secrets["DB_HOST"]
         port = int(st.secrets["DB_PORT"])
         database = st.secrets["DB_NAME"]
         user = st.secrets["DB_USER"]
         password = st.secrets["DB_PASS"]
-
     else:
+        # Jalur cadangan untuk localhost komputer kamu (.env)
         import os
         from dotenv import load_dotenv
         load_dotenv()
@@ -49,20 +51,29 @@ def get_analytics_data():
                 host, port = host_port.split(":")
                 port = int(port)
             except Exception:
-                pass 
+                pass
 
-    conn = psycopg2.connect(
-        host=host,
-        port=port,
-        database=database,
-        user=user,
-        password=password
-    )
-    
-    df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
-    df_learn = pd.read_sql_query("SELECT dari, ke, koreksi FROM model_learnings;", conn)
-    conn.close()
-    return df_search, df_learn
+    # 3. PROSES KONEKSI DENGAN PENANGKAP ERROR (ANTI-REDACTED)
+    try:
+        conn = psycopg2.connect(
+            host=host,
+            port=port,
+            database=database,
+            user=user,
+            password=password,
+            connect_timeout=5 # Batasi waktu tunggu 5 detik agar tidak hang
+        )
+        
+        df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
+        df_learn = pd.read_sql_query("SELECT dari, ke, koreksi FROM model_learnings;", conn)
+        conn.close()
+        return df_search, df_learn
+
+    except Exception as e:
+        # Jika gagal konek, cetak error aslinya ke layar web Streamlit!
+        st.error(f"🚨 Gagal terhubung ke Cloud Supabase! Detail Error Asli: {e}")
+        # Kembalikan dataframe kosong agar layout halaman admin tidak hancur berantakan
+        return pd.DataFrame(), pd.DataFrame()
 
 df_search, df_learn = get_analytics_data()
 
