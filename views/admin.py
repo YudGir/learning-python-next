@@ -8,20 +8,20 @@ load_dotenv()
 DB_CONN_STR = os.getenv("DB_CONN_STR")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
-st.title("📊 Ruang Kendali & Analytics Admin DMIF")
+st.title("📊 Ruang Kendali Administrator Web DMIF")
 
-# 1. Pintu Gerbang Otentikasi Password Admin
+st.markdown("> _PENTING: Submenu ini khusus bagi Administrator Resmi DMIF saja._")
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
     password_input = st.text_input("Masukkan Password Admin Keamanan Jaringan:", type="password")
-    if st.button("LOGIN KEY CONTROL 🔑"):
+    if st.button("LOGIN ADMINISTRATOR 🖐️", use_container_width=True):
         if password_input == ADMIN_PASSWORD:
             st.session_state.authenticated = True
             st.rerun()
         else:
-            st.error("Password Salah! Akses ditolak 🗿")
+            st.error("Password salah! Akses ditolak.")
     st.stop()
 
 # Fungsi tarik data analitik dari Postgresql
@@ -49,7 +49,7 @@ with kpi3:
 st.markdown("---")
 
 # --- VISUALISASI GRAFIK RUTE TERPOPULER ---
-st.markdown("### 🏆 Top 5 Rute Paling Sering Dicari Netizen")
+st.markdown("### 🏆 Top 5 Rute Paling Sering Dicari Pengguna")
 if not df_search.empty:
     top_routes = df_search['rute_pencarian'].value_counts().head(5)
     # Tampilkan grafik batang interaktif bawaan Streamlit
@@ -68,3 +68,4 @@ else:
 if st.button("LOGOUT ADMIN 🚪"):
     st.session_state.authenticated = False
     st.rerun()
+
