@@ -22,11 +22,11 @@ if not st.session_state.authenticated:
     st.stop()
 
 def get_analytics_data():
-    host = "aws-0-ap-southeast-1.pooler.supabase.com"
+    host = "://supabase.com"
     port = 6543
     database = "postgres"
     password = "IFPASTIBISA"
-    user = "bhpiouzuqkoeyfainakj.postgres"
+    user = "postgres.bhpiouzuqkoeyfainakj.session"
 
     try:
         conn = psycopg2.connect(
@@ -35,7 +35,8 @@ def get_analytics_data():
             database=database,
             user=user,
             password=password,
-            connect_timeout=5
+            connect_timeout=5,
+            options="-c synapse=true"
         )
         
         df_search = pd.read_sql_query("SELECT rute_pencarian, status_api, created_at FROM search_analytics;", conn)
@@ -48,8 +49,8 @@ def get_analytics_data():
             conn = psycopg2.connect(
                 host=host,
                 port=port,
-                database="bhpiouzuqkoeyfainakj", 
-                user="postgres",
+                database=database,
+                user="postgres.bhpiouzuqkoeyfainakj.transaction",
                 password=password,
                 connect_timeout=5
             )
