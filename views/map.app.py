@@ -485,13 +485,13 @@ if st.button("GAS TEMUKAN RUTE TERBAIK UNTUK SAYA 😁", use_container_width=Tru
                 - ingin menuju Toilet Laki-Laki: 
                   Arahnya adalah di sebelah kanan setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu!
                 - ingin menuju Toilet Perempuan:
-                  Arahnya adalah di sebelah kanan setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu dan berseberangan dengan toilet Perempuan!
+                  Arahnya adalah di sebelah kanan setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu dan berseberangan dengan toilet Laki-Laki!
 
                 Kalo ada yang mau pergi dari salah satu Sub Ruang D (cocokkan dari list sub ruang D di atas dengan posisi user sekarang!):
                 - ingin menuju Toilet Laki-Laki: 
                   Arahnya adalah di sebelah kanan setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu!
                 - ingin menuju Toilet Perempuan:
-                  Arahnya adalah di sebelah kanan setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu dan berseberangan dengan toilet Perempuan!
+                  Arahnya adalah di sebelah kanan setelah menuju tengah gedung di dekat tangga tengah gedung di lantai itu dan berseberangan dengan toilet Laki-Laki!
 
                 Jangan ikutkan diksi "sayap", tapi berikan respon yang tepat dan awam sangat pun tahu itu!
                 Jangan pernah sebut Sub-Ruang ini menuju output!
