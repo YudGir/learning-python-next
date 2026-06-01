@@ -73,6 +73,6 @@ if not df_learn.empty:
 else:
     st.info("AI belum mempelajari koreksi rute apa pun dari user.")
     
-if st.button("LOGOUT ADMIN 🚪"):
+if st.button("LOGOUT ADMIN 🚪", use_container_width=True):
     st.session_state.authenticated = False
     st.rerun()
