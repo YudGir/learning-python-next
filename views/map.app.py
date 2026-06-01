@@ -11,7 +11,6 @@ from PIL import Image
 load_dotenv()
 geminiAPI = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY")
 
-# --- PARAMETER POOLER SAKTI ANTI-ENOTFOUND (SINKRONISASI TOTAL IPV6) ---
 DB_HOST = "aws-1-ap-northeast-2.pooler.supabase.com"
 DB_PORT = 5432
 DB_NAME = "postgres"
