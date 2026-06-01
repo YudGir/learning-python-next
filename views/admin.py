@@ -69,3 +69,4 @@ if st.button("LOGOUT ADMIN 🚪"):
     st.session_state.authenticated = False
     st.rerun()
 
+# Update sinkronisasi string koneksi database pooler Supabase v6543
