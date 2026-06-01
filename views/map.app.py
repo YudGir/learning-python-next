@@ -12,12 +12,10 @@ load_dotenv()
 geminiAPI = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY")
 
 # --- PARAMETER POOLER SAKTI ANTI-ENOTFOUND (SINKRONISASI TOTAL IPV6) ---
-DB_HOST = "aws-0-ap-southeast-1.pooler.supabase.com"
-DB_PORT = 6543
-DB_USER = "postgres.bhpiouzuqkoeyfainakj" # Gunakan format default gabungan ini
-
-# PERUBAHAN KRUSIAL: Ubah nama database dari "postgres" menjadi ID proyek unikmu!
-DB_NAME = "bhpiouzuqkoeyfainakj" 
+DB_HOST = "aws-1-ap-northeast-2.pooler.supabase.com"
+DB_PORT = 5432
+DB_NAME = "postgres"
+DB_USER = "postgres.bhpiouzuqkoeyfainakj"
 DB_PASS = "IFPASTIBISA"
 
 def fetch_learnings_from_db():
