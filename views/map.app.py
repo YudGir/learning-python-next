@@ -1,6 +1,6 @@
 import streamlit as st
 import os
-import requests 
+import requests
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from google import genai
@@ -10,18 +10,36 @@ from PIL import Image
 
 load_dotenv()
 geminiAPI = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY")
-DB_CONN_STR = os.getenv("DB_CONN_STR") or st.secrets.get("DB_CONN_STR")
 
-if not DB_CONN_STR:
-    DB_CONN_STR = "postgresql://postgres.bhpiouzuqkoeyfainakj:IFPASTIBISA@://supabase.com"
+# --- KUNCI PARAMETER INDIVIDUAL DI MAP_APP AGAR SINKRON DENGAN ADMIN ---
+DB_HOST = "://supabase.com"
+DB_PORT = 6543
+DB_NAME = "postgres"
+DB_USER = "postgres.bhpiouzuqkoeyfainakj"
+DB_PASS = "IFPASTIBISA"
+
+def fetch_learnings_from_db():
+    try:
+        conn = psycopg2.connect(
+            host=DB_HOST, port=DB_PORT, database=DB_NAME, user=DB_USER, password=DB_PASS, connect_timeout=5
+        )
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("SELECT dari, ke, koreksi FROM model_learnings;")
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        return rows
+    except Exception:
+        return []
 
 def log_search_to_db(rute, status):
     try:
         response = requests.get('http://ip-api.com', timeout=3).json()
         ip_anonim = response.get('query', 'Unknown IP')
         kota_asal = response.get('city', 'Unknown City')
-        
-        conn = psycopg2.connect(DB_CONN_STR)
+        conn = psycopg2.connect(
+            host=DB_HOST, port=DB_PORT, database=DB_NAME, user=DB_USER, password=DB_PASS, connect_timeout=5
+        )
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO search_analytics (rute_pencarian, status_api, ip_user, lokasi) VALUES (%s, %s, %s, %s);", 
@@ -32,34 +50,22 @@ def log_search_to_db(rute, status):
         conn.close()
     except Exception:
         try:
-            conn = psycopg2.connect(DB_CONN_STR)
-            cur = conn.cursor()
-            cur.execute(
-                "INSERT INTO search_analytics (rute_pencarian, status_api, ip_user, lokasi) VALUES (%s, %s, 'Unknown', 'Unknown');", 
-                (rute, status)
+            conn = psycopg2.connect(
+                host=DB_HOST, port=DB_PORT, database=DB_NAME, user=DB_USER, password=DB_PASS, connect_timeout=5
             )
+            cur = conn.cursor()
+            cur.execute("INSERT INTO search_analytics (rute_pencarian, status_api, ip_user, lokasi) VALUES (%s, %s, 'Unknown', 'Unknown');", (rute, status))
             conn.commit()
             cur.close()
             conn.close()
         except Exception:
             pass
 
-def fetch_learnings_from_db():
-    try:
-        conn = psycopg2.connect(DB_CONN_STR)
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute("SELECT dari, ke, koreksi FROM model_learnings;")
-        rows = cur.fetchall()
-        cur.close()
-        conn.close()
-        return rows
-    except Exception as e:
-        return []
-
-
 def save_learning_to_db(dari, ke, koreksi):
     try:
-        conn = psycopg2.connect(DB_CONN_STR)
+        conn = psycopg2.connect(
+            host=DB_HOST, port=DB_PORT, database=DB_NAME, user=DB_USER, password=DB_PASS, connect_timeout=5
+        )
         cur = conn.cursor()
         cur.execute("INSERT INTO model_learnings (dari, ke, koreksi) VALUES (%s, %s, %s);", (dari, ke, koreksi))
         conn.commit()
