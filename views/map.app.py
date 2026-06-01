@@ -16,7 +16,7 @@ DB_HOST = "aws-1-ap-northeast-2.pooler.supabase.com"
 DB_PORT = 5432
 DB_NAME = "postgres"
 DB_USER = "postgres.bhpiouzuqkoeyfainakj"
-DB_PASS = "IFPASTIBISA"
+DB_PASS = st.secrets.get("DB_PASS") or os.getenv("DB_PASS")
 
 def fetch_learnings_from_db():
     try:
