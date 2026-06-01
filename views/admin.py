@@ -25,7 +25,7 @@ def get_analytics_data():
     port = 6543
     database = "postgres"
     password = "IFPASTIBISA"
-    user = "postgres.bhpiouzuqkoeyfainakj"
+    user = "postgres.bhpiouzuqkoeyfainakj.session"
 
     try:
         conn = psycopg2.connect(
