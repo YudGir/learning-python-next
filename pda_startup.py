@@ -82,7 +82,7 @@ if __name__ == "__main__":
             print(f"Membuat audio untuk event: {key}")
             asyncio.run(generate_and_apply_fx(text, file_path))
 
-    print(f"\n[ALTERRA ENGINE v9.7 ONLINE] Selamat bertugas, {TITLE}!")
+    print(f"\n[AIE ENGINE v9.7 ONLINE] Selamat bertugas, {TITLE}!")
     
     # LOGIKA STARTUP
     now = datetime.now()
