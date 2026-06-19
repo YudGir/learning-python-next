@@ -4,10 +4,10 @@ st.set_page_config(page_title="Web Application for DMIF", page_icon="🚀", layo
 
 pages = {
     "Menu Utama": [
-        st.Page("views/map.app.py", title="IF Map Navigation", icon="🗺️"),
+        st.Page("map.app.py", title="IF Map Navigation", icon="🗺️"),
     ],
     "Sistem Admin": [
-        st.Page("views/admin.py", title="Dashboard Analytics", icon="📊"),
+        st.Page("admin.py", title="Dashboard Analytics", icon="📊"),
     ]
 }
 

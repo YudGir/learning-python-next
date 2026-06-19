@@ -1,1 +1,0 @@
-creating 100 numbers that starts from 0, ends with 10.
